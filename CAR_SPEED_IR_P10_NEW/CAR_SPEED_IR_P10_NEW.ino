@@ -16,7 +16,7 @@ int timer2;
 
 float Time;
 
-int flag1 = 0;
+int flag1 = 0; //creating flags1
 int flag2 = 0;
 
 float distance = 10;  // space beteen the 2 sensors in cm
