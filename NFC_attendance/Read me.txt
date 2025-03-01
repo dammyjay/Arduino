@@ -1,0 +1,8 @@
+About the project
+this project is created by Jaykirch Technology Hub
+
+the NFC is to be powered with 3.3v 
+also make sure to add the adafruit PN532 and LiquidCrystalI2C libraries. 
+
+Each NFC tag has an ID that is read by the scanner, the ID can be transferred to a web
+or mobile app with the use of the bluetooth module
