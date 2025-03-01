@@ -7,6 +7,7 @@ int sensor2 = 5;
 int sensor3 = 6;
 int sensor4 = 7;
 
+// declaring the relay pins
 int relay1 = 8;
 int relay2 = 9;
 int relay3 = 10;
