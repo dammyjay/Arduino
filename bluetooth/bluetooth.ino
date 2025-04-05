@@ -21,7 +21,7 @@ void loop() {
   // Check if data is available from the MIT App Inventor app
   int a = random(25);
   Serial.println(a);
-  BT,println(a);
+  BT.println(a);
   delay(1000);
   if (BT.available()) {
     // Read the data
