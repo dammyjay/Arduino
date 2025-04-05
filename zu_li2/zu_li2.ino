@@ -4,13 +4,6 @@
  * Links to download libraries : https://github.com/busel7/DMDESP
 */
 
-//----------------------------------------Include Library
-//----------------------------------------see here: https://www.youtube.com/watch?v=8jMr94B8iN0 to add NodeMCU ESP8266 library and board
-#include <DMDESP.h>
-#include <fonts/ElektronMart6x8.h>
-#include <fonts/Mono5x7.h>
-//----------------------------------------
-
 #include <Wire.h>
 #if defined(ESP32)
 #include <WiFi.h>
@@ -27,27 +20,8 @@
 //info and other helper functions.
 #include <addons/RTDBHelper.h>
 
-int timer1;
-int timer2;
 
-float Time;
 
-int flag1 = 0;
-int flag2 = 0;
-
-float distance = 60;  // space beteen the 2 sensors in cm
-float speed;
-
-int ir_s1 = 2;  //D4 on nodemcu
-int ir_s2 = 5;  //D1 on Nodemcu
-char chr[5];
-
-int buzzer = 3;
-
-//----------------------------------------DMD Configuration (P10 Panel)
-#define DISPLAYS_WIDE 2                     //--> Panel Columns
-#define DISPLAYS_HIGH 1                     //--> Panel Rows
-DMDESP Disp(DISPLAYS_WIDE, DISPLAYS_HIGH);  //--> Number of Panels P10 used (Column, Row)
 
 // LiquidCrystal_I2C lcd(0x27, 16, 2);  // Default address of most PCF8574 modules, change according
 //-----------------------------------------------------------------------
@@ -59,14 +33,24 @@ DMDESP Disp(DISPLAYS_WIDE, DISPLAYS_HIGH);  //--> Number of Panels P10 used (Col
 // #define WIFI_PASSWORD "Dammy4real"
 
 
-#define WIFI_SSID "TECNO POP 2 Power"
-#define WIFI_PASSWORD "Akins010"
+#define WIFI_SSID "Infinix HOT 6 Pro"
+#define WIFI_PASSWORD "Dammy4real"
+//----------------------------------------------------------------------
+// #define WIFI_SSID "TECNO POP 2 Power"
+// #define WIFI_PASSWORD "Akins010"
 //-----------------------------------------------------------------------
 /* 2. Define the API Key */
-#define API_KEY "AIzaSyDXv-zqKSyZsE1Yd9pOeUf8yYr6S7D0n8E"
+// #define API_KEY "AIzaSyDXv-zqKSyZsE1Yd9pOeUf8yYr6S7D0n8E"
+// //-----------------------------------------------------------------------
+// /* 3. Define the RTDB URL */
+// #define DATABASE_URL "https://csd-app-e2a96-default-rtdb.firebaseio.com/"
+// //-----------------------------------------------------------------------
+
+/* 2. Define the API Key */
+#define API_KEY "AIzaSyDHc1dMzCUhuvHbI9_0TV_3V13grhI4Sz4"
 //-----------------------------------------------------------------------
 /* 3. Define the RTDB URL */
-#define DATABASE_URL "https://csd-app-e2a96-default-rtdb.firebaseio.com/"
+#define DATABASE_URL "https://zucali-default-rtdb.firebaseio.com/"
 //-----------------------------------------------------------------------
 // String room_no = "room1";
 String room_no = "Speed";
@@ -197,51 +181,17 @@ void streamTimeoutCallback(bool timeout) {
                   stream.errorReason().c_str());
 }
 
-static char* Text[] = { "CAR SPEED DETECTOR SPEED LIMIT : 40KM/HR" };
-
-void Scrolling_Text(int y, uint8_t scrolling_speed) {
-  static uint32_t pM;
-  static uint32_t x;
-  int width = Disp.width();
-  Disp.setFont(Mono5x7);
-  int fullScroll = Disp.textWidth(Text[0]) + width;
-  if ((millis() - pM) > scrolling_speed) {
-    pM = millis();
-    if (x < fullScroll) {
-      ++x;
-    } else {
-      x = 0;
-      return;
-    }
-    Disp.drawText(width - x, y, Text[0]);
-  }
-}
-
-void updateDisplay(const char* text) {
-  // Disp.clearScreen();  // Clear the back buffer
-  Disp.drawText(0, 0, text);  // Draw new content
-  Disp.swapBuffers();         // Swap the buffers to display the new content
-}
 
 //----------------------------------------------------------------------
 // SETUP
 
 void setup() {
 
-  //----------------------------------------DMDESP Setup
-  Disp.start();  //--> Run the DMDESP library
-  // Disp.setDoubleBuffer(true);
-  Disp.setBrightness(50);  //--> Brightness level
-  Disp.setFont(Mono5x7);   //--> Determine the font used
-
-  //----------------------------------------
 
   Serial.begin(9600);
-  pinMode(ir_s1, INPUT);
-  pinMode(ir_s2, INPUT);
   pinMode(buzzer, OUTPUT);
 
-  randomSeed(analogRead(0));
+  // randomSeed(analogRead(0));
   // pinMode(WIFI_LED, OUTPUT);
 
   Serial.println("Car speed detector");
@@ -308,92 +258,12 @@ void setup() {
 
 void loop() {
   int a = random(100);
+  
   Serial.printf("Set Test String... %s\n\n", Firebase.RTDB.setString(&fbdo, "/test", a) ? "ok" : fbdo.errorReason().c_str());
   digitalWrite(buzzer, HIGH);
 
-  Disp.loop();  //--> Run "Disp.loop" to refresh the LED
-  // Disp.drawText(4, 0, "UTEH");  //--> Display text "Disp.drawText(x position, y position, text)"
-  Scrolling_Text(9, 100);  //--> Show running text "Scrolling_Text(y position, speed);"
-  Disp.drawText(32, 0, chr);
-  // Disp.drawText(7, 0, time);
-  // Serial.print("Sensor1 ");
-  // Serial.print(digitalRead(ir_s1));
 
-  // Serial.print(" Sensor2 ");
-  // Serial.println(digitalRead(ir_s2));
 
-  if (digitalRead(ir_s1) == 0 && flag1 == 0) {
-    timer1 = millis();
-    flag1 = 1;
-  }
-
-  if (digitalRead(ir_s2) == 0 && flag2 == 0) {
-    timer2 = millis();
-    flag2 = 1;
-  }
-
-  if (flag1 == 1 && flag2 == 1) {
-    if (timer1 > timer2) { Time = timer1 - timer2; }  // Checking if timer 1 is greater than timer 2 so the time differnce will always be positive value
-    else if (timer2 > timer1) {
-      Time = timer2 - timer1;
-    }                           // Checking if timer 2 is greater than timer 1 so the time differnce will always be positive value
-    Time = Time / 1000;         //convert millisecond to second
-    speed = (distance / Time);  //v=d/t
-    speed = speed * 1000;       //multiply by seconds per hr
-    speed = speed / 1000;       //division by meters per Km
-  }
-
-  if (speed == 0) {
-    if (flag1 == 0 && flag2 == 0) {
-      // Serial.println("No car  detected");
-      Disp.loop();                   //--> Run "Disp.loop" to refresh the LED
-      Disp.drawText(0, 0, "CSD||");  //--> Display text "Disp.drawText(x position, y position, text)"
-
-    }
-
-    else {
-      Serial.println("Searching...    ");
-      Disp.loop();                            //--> Run "Disp.loop" to refresh the LED
-      Disp.drawText(0, 0, "SEARCHING.....");  //--> Display text "Disp.drawText(x position, y position, text)"
-    }
-  }
-
-  else {
-
-    Serial.print("Speed: ");
-    Serial.print(speed, 3);
-    Serial.println("Km/Hr  ");
-    Serial.print("Time: ");
-    Serial.print(Time);
-    dtostrf(speed, 4, 2, chr);
-    // dtostrf(Time, 4, 2, time);
-
-    if (speed > 40) {
-      dtostrf(speed, 4, 2, chr);
-      Serial.print("  Over Speeding  ");
-      Disp.loop();                    //--> Run "Disp.loop" to refresh the LED
-      Disp.drawText(0, 0, "OVER");    //--> Display text "Disp.drawText(x position, y position, text)"
-      Disp.drawText(25, 0, chr, 5);   //--> Display text "Disp.drawText(x position, y position, text)"
-      Disp.drawText(56, 0, "km/Hr");  //--> Display text "Disp.drawText(x position, y position, text)"
-
-      // Serial.printf("Set Test String... %s\n\n", Firebase.RTDB.setString(&fbdo, "/test", chr) ? "ok" : fbdo.errorReason().c_str());
-      digitalWrite(buzzer, HIGH);
-
-    }
-
-    else {
-      Serial.print("  Normal Speed   ");
-      Disp.loop();                    //--> Run "Disp.loop" to refresh the LED
-      Disp.drawText(0, 0, "GOOD");    //--> Display text "Disp.drawText(x position, y position, text)"
-      Disp.drawText(25, 0, chr, 5);   //--> Display text "Disp.drawText(x position, y position, text)"
-      Disp.drawText(56, 0, "km/Hr");  //--> Display text "Disp.drawText(x position, y position, text)"
-    }
-    delay(3000);
-    digitalWrite(buzzer, LOW);
-    speed = 0;
-    flag1 = 0;
-    flag2 = 0;
-  }
 
   // int a = random(200);
 

@@ -205,6 +205,8 @@ void loop() {
     lcd.print("Registered");
     delay(1000);
     digitalWrite(indFinger, HIGH);
+    // Serial.println("Sending attendance");//-------------------------------------------------------
+    // Serial.println(result);
     return;
   }
   checkKeys();
@@ -524,6 +526,8 @@ uint8_t getFingerprintEnroll() {
     Serial.println("Stored!");
     lcd.clear();
     lcd.print(" Finger Stored!");
+    Serial.print("Sending id: ");//-------------------------------------------------------------
+    Serial.println(id);
     delay(2000);
   } else if (p == FINGERPRINT_PACKETRECIEVEERR) {
     Serial.println("Communication error");
@@ -560,7 +564,7 @@ int getFingerprintIDez() {
     return -1;
   }
   // found a match!
-  Serial.print("Found ID #");
+  // Serial.print("Found ID #");
   Serial.print(finger.fingerID);
   return finger.fingerID;
 }

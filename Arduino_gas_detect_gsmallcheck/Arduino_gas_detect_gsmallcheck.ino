@@ -2,10 +2,15 @@
 #include <LiquidCrystal_I2C.h>
 #include <SoftwareSerial.h>
 
+// Define the HC-06 RX and TX pins
+#define HC06_RX 10
+#define HC06_TX 11
+
+SoftwareSerial BT(HC06_RX, HC06_TX);
 SoftwareSerial gsm(9, 11);           // SIM800L TX to Arduino RX (9), SIM800L RX to Arduino TX (10)
 LiquidCrystal_I2C lcd(0x27, 16, 2);  // Check your LCD I2C address (0x27 or 0x3F)
 
-const int gasThreshold = 300;  // Adjust threshold based on environment
+const int gasThreshold = 150;  // Adjust threshold based on environment
 // Function prototypes
 bool checkAT();
 bool checkSIM();
@@ -20,6 +25,7 @@ int checkNetwork();
 void setup() {
   Serial.begin(9600);
   gsm.begin(9600);
+  BT.begin(9600); // Set the baud rate to match the HC-06
   lcd.init();
   lcd.backlight();
 
@@ -253,7 +259,7 @@ void loop() {
   void sendSMS(String message) {
     gsm.println("AT+CMGF=1");  // Set SMS mode
     delay(1000);
-    gsm.println("AT+CMGS=\"+2349167667242\"");  // Replace with actual phone number
+    gsm.println("AT+CMGS=\"+2348100427914\"");  // Replace with actual phone number
     delay(1000);
     gsm.print(message);
     delay(1000);
