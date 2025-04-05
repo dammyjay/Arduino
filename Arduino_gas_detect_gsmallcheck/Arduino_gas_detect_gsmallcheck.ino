@@ -3,8 +3,8 @@
 #include <SoftwareSerial.h>
 
 // Define the HC-06 RX and TX pins
-#define HC06_RX 10
-#define HC06_TX 11
+#define HC06_RX 12
+#define HC06_TX 13
 
 SoftwareSerial BT(HC06_RX, HC06_TX);
 SoftwareSerial gsm(9, 11);           // SIM800L TX to Arduino RX (9), SIM800L RX to Arduino TX (10)
@@ -132,6 +132,7 @@ void loop() {
   int gasValue = analogRead(MQ2_PIN);
   Serial.print("Gas Level: ");
   Serial.println(gasValue);
+  // BT.println(gasValue);
 
   // lcd.clear();
   lcd.setCursor(0, 0);
@@ -189,6 +190,7 @@ void loop() {
     digitalWrite(RED_LED, HIGH);
     digitalWrite(GREEN_LED, LOW);
     sendSMS("Warning! Gas leak detected! Take immediate action.");
+    BT.println("Warning! Gas leak detected! Take immediate action.");
 
     delay(5000);  // Avoid continuous SMS spam
   } 
@@ -200,6 +202,7 @@ void loop() {
     digitalWrite(GREEN_LED, HIGH);
     lcd.setCursor(0, 1);
     lcd.print("Normal   ");
+    // BT.println("Normal");
 
   }
 
